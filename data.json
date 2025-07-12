@@ -1,0 +1,41 @@
+{
+	/// List of all available items.
+	/// Each item has a name and 2 colors:
+	/// 'a' - primary color,
+	/// 'b' - outline color.
+	"items": [
+		{
+			"name": "Gel",
+			"a": "#3b77ed",
+			"b": "#174399"
+		}, {
+			"name": "Wood",
+			"a": "#75604a",
+			"b": "#473c30"
+		}, {
+			"name": "Stone",
+			"a": "#757780",
+			"b": "#303136"
+		}, {
+			"name": "Iron",
+			"a": "#f0eee9",
+			"b": "#bfbebb"
+		}, {
+			"name": "Gold",
+			"a": "#f7d031",
+			"b": "#827231"
+		}, {
+			"name": "Ruby",
+			"a": "#eb0927",
+			"b": "#8a0a1b"
+		}, {
+			"name": "Amethyst",
+			"a": "#8741f0",
+			"b": "#6414db"
+		}, {
+			"name": "Emerald",
+			"a": "#41f055",
+			"b": "#26ad36"
+		}
+	]
+}
