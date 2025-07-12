@@ -37,5 +37,16 @@
 			"a": "#41f055",
 			"b": "#26ad36"
 		}
+	],
+	/// List of all available placing algorithms.
+	/// Each algorithm has a display name and function name.
+	"algorithms": [
+		{
+			"name": "Leaf padding",
+			"func": "leaf"
+		}, {
+			"name": "Tower fitting",
+			"func": "tower"
+		}
 	]
 }
