@@ -46,7 +46,9 @@ drag = {
 rec: Recipe = Recipe(Item(0, 0, 'gel'))
 rec.ings.append(Item(-2, 1, 'iron'))
 rec.ings.append(Item( 0, 1, 'gold'))
-rec.ings.append(Item( 2, 1, 'ruby'))
+rec.ings.append(Recipe(Item(2, 1, 'ruby')))
+rec.ings[2].ings.append(Item(1, 2, 'emerald'))
+rec.ings[2].ings.append(Item(3, 2, 'amethyst'))
 
 # main loop
 while True:
@@ -89,8 +91,12 @@ while True:
 	# clear frame
 	win.fill((29, 31, 37))
 
-	# draw recipe tree
+	# reset object colliders
 	Item.colliders.clear()
+	Recipe.colliders_ing.clear()
+	Recipe.colliders_res.clear()
+
+	# draw recipe tree
 	rec.draw(win, camera, win.get_size())
 
 	# draw camera position
@@ -104,11 +110,20 @@ while True:
 	# draw hovered item info
 	hovered_items = Item.get_at(py.mouse.get_pos())
 	if hovered_items:
-		string = str(hovered_items[0])
+		# item info
+		string = str(hovered_items[0]['item'])
 		if len(hovered_items) > 1:
 			string += f' +{len(hovered_items) - 1}'
 		item_text = font.render(string, 1, (255, 255, 255))
 		win.blit(item_text, (win.get_width() - item_text.get_width() - PAD, win.get_height() - item_text.get_height() - PAD))
+
+		# ingredient of
+		ingof_text = font.render(f'Used in: {hovered_items[0]["ingof"]}', 1, (255, 255, 255))
+		win.blit(ingof_text, (PAD, win.get_height() - ingof_text.get_height() - PAD))
+
+		# result of
+		resof_text = font.render(f'Recipe: {hovered_items[0]["resof"]}', 1, (255, 255, 255))
+		win.blit(resof_text, (PAD, win.get_height() - resof_text.get_height() - ingof_text.get_height() - PAD))
 	
 	# wait until next frame
 	py.display.flip()

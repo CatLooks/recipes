@@ -1,5 +1,5 @@
 import pygame as py
-from items import Item, SIZE
+from items import Item, db, SIZE
 
 # returns rounded average
 def avg_int(col: list[int]) -> int:
@@ -13,10 +13,23 @@ def center(pos: tuple[int, int]) -> tuple[int, int]:
 
 # recipe object
 class Recipe:
+	colliders_ing = [] # ingredient colliders
+	colliders_res = [] # result colliders
+
 	# recipe constructor
 	def __init__(self, result: Item):
-		self.res = result
-		self.ings = []
+		self.res: Item = result
+		self.ings: list[Item] = []
+
+	# return recipe result index
+	@property
+	def idx(self) -> int:
+		return self.res.i
+
+	# recipe representation
+	def __str__(self) -> str:
+		ings = ', '.join(db.get(ing.idx)[0] for ing in self.ings)
+		return f'[{ings}] = {db.get(self.res.idx)[0]}'
 
 	# get result true position
 	def pos(self, camera: tuple[int, int], window: tuple[int, int]) -> tuple[int, int]:
@@ -40,6 +53,13 @@ class Recipe:
 			py.draw.rect(surface, (255, 255, 255), (ing[0], hor_y, 1, ing[1] - hor_y))
 
 		# draw items
-		self.res.draw(surface, camera, window)
-		for ing in self.ings:
-			ing.draw(surface, camera, window)
+		res_idx = self.res.draw(surface, camera, window)
+		ing_idx = [ing.draw(surface, camera, window) for ing in self.ings]
+
+		# bind to colliders
+		Item.colliders[res_idx]['resof'] = self
+		for idx in ing_idx:
+			Item.colliders[idx]['ingof'] = self
+
+		# return result collider
+		return res_idx
