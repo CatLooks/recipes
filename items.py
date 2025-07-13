@@ -8,6 +8,12 @@ db = cat.Catalog()
 SIZE = 48
 BORDER = 4
 
+# coordinate scalers
+# if x = 2, then there should be half of SIZE between items
+X_MULT = SIZE * 3 // 4
+# separate ingredient layers by 1 item height
+Y_MULT = SIZE * 2
+
 # item object
 class Item: pass
 class Item:
@@ -40,12 +46,20 @@ class Item:
 	def __str__(self) -> str:
 		return f'{db.get(self.i)[0]} @({self.x}, {self.y})'
 
+	# calculates true position
+	def pos(self, camera: tuple[int, int], window: tuple[int, int]) -> tuple[int, int]:
+		# scale coordinates
+		tx = self.x * X_MULT
+		ty = self.y * Y_MULT
+
+		# window + size offset makes item at (0, 0) perfectly in the middle of the window
+		tx += (window[0] - SIZE) // 2 - camera[0]
+		ty += (window[1] - SIZE) // 2 - camera[1]
+		return tx, ty
+
 	# draws item
 	def draw(self, surface: py.Surface, camera: tuple[int, int], window: tuple[int, int]) -> None:
-		# calculate true position
-		# window + size offset makes item at (0, 0) perfectly in the middle of the window
-		tx = self.x * 64 - camera[0] + (window[0] - SIZE) // 2
-		ty = self.y * 64 - camera[1] + (window[1] - SIZE) // 2
+		tx, ty = self.pos(camera, window)
 
 		# draw rects
 		_, fill, out = db.get(self.i)
@@ -53,4 +67,5 @@ class Item:
 		py.draw.rect(surface, fill, (tx + BORDER, ty + BORDER, SIZE - BORDER * 2, SIZE - BORDER * 2))
 
 		# adds item collider
-		self.colliders.append((tx, ty, tx + SIZE, ty + SIZE, self))
+		collider = (tx, ty, tx + SIZE, ty + SIZE, self)
+		self.colliders.append(collider)

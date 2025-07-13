@@ -1,8 +1,9 @@
 import pygame as py
 import json5
-import items, catalog
+import catalog
 
 from items import Item, db
+from recipes import Recipe
 
 # load config
 try:
@@ -25,7 +26,7 @@ done = False
 
 # create window
 size = 1600, 900
-win = py.display.set_mode(size, py.RESIZABLE)
+win = py.display.set_mode(size, py.RESIZABLE, vsync = 1)
 py.display.set_caption('Recipe Tree')
 
 # initialize window related stuff
@@ -41,8 +42,11 @@ drag = {
 	'active': False, # whether currently dragging
 }
 
-# test item
-item: Item = Item(0, 0, 'gel')
+# test recipe
+rec: Recipe = Recipe(Item(0, 0, 'gel'))
+rec.ings.append(Item(-2, 1, 'iron'))
+rec.ings.append(Item( 0, 1, 'gold'))
+rec.ings.append(Item( 2, 1, 'ruby'))
 
 # main loop
 while True:
@@ -87,8 +91,7 @@ while True:
 
 	# draw recipe tree
 	Item.colliders.clear()
-	item.draw(win, camera, win.get_size())
-	item.draw(win, camera, win.get_size())
+	rec.draw(win, camera, win.get_size())
 
 	# draw camera position
 	cam_text = font.render(f'@({camera[0]}, {camera[1]}) (reset with R)', 1, (255, 255, 255))
