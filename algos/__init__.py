@@ -4,24 +4,31 @@ from items import Item, db
 from recipes import Recipe
 import random
 
+# generates a random boolean based on probability rate
+def random_chance(rate: float) -> bool:
+	return random.uniform(0, 1) < rate
+
 # generates a random item
 def random_item() -> Item:
-	return random.randrange(db.count)
+	return Item(0, 0, random.randrange(db.count))
 
 # generates a random recipe tree
-def random_tree(depth: int) -> Recipe:
-	# generate an item if exceeded depth or randomly
-	if depth <= 0 or random.randrange(depth * 2 + 1) == 0:
-		return Item(0, 0, random_item())
+def random_tree(depth: int, bias: int = 1) -> Recipe | Item:
+	# generate item
+	if depth <= 0 or random_chance(0.4 / depth):
+		return random_item()
+	
+	# generate recipe
+	rec = Recipe(random_item())
+	
+	# ingredient count
+	count = 1
+	if random.randrange(bias) == 0:
+		count = random.randint(2, min([2 + depth // 3, 5]))
 
-	# generate a random recipe
-	rec: Recipe = Recipe(Item(0, 0, random_item()))
-	if random.uniform(0, 1) < 0.125 and depth >= 3:
-		ing_count = random.randrange(2, 6)
-	else:
-		ing_count = random.randrange(1, 4)
-	for _ in range(ing_count):
-		rec.ings.append(random_tree(depth - 1))
+	# generate ingredients
+	for _ in range(count):
+		rec.ings.append(random_tree(depth - 1, random.randint(1, 4)))
 	return rec
 
 # algorithm index
