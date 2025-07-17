@@ -20,6 +20,21 @@ class Recipe:
 	def __init__(self, result: Item):
 		self.res: Item = result
 		self.ings: list[Item] = []
+		self.notes: dict = {}
+
+	@property
+	def notestr(self) -> str:
+		return ', '.join(f'{key}: {val}' for key, val in self.notes.items())
+
+	# sets recipe position
+	def set(self, x: int, y: int) -> None:
+		self.res.x = x
+		self.res.y = y
+
+	# shifts item position
+	def shift(self, x: int, y: int) -> None:
+		self.res.x += x
+		self.res.y += y
 
 	# return recipe result index
 	@property
@@ -32,14 +47,16 @@ class Recipe:
 		return f'[{ings}] = {db.get(self.res.idx)[0]}'
 
 	# get result true position
-	def pos(self, camera: tuple[int, int], window: tuple[int, int]) -> tuple[int, int]:
-		return self.res.pos(camera, window)
+	def pos(self, offset: tuple[int, int], camera: tuple[int, int], window: tuple[int, int]) -> tuple[int, int]:
+		return self.res.pos(offset, camera, window)
 
 	# draws recipe
-	def draw(self, surface: py.Surface, camera: tuple[int, int], window: tuple[int, int]) -> None:
+	def draw(self, offset: tuple[int, int], surface: py.Surface, camera: tuple[int, int], window: tuple[int, int]) -> None:
+		res_off = offset[0] + self.res.x, offset[1] + self.res.y
+
 		# get item positions
-		rx, ry = center(self.res.pos(camera, window))
-		ing_pos = [center(ing.pos(camera, window)) for ing in self.ings]
+		rx, ry = center(self.res.pos(offset, camera, window))
+		ing_pos = [center(ing.pos(res_off, camera, window)) for ing in self.ings]
 
 		# draw horizontal connector
 		min_x = min(pos[0] for pos in ing_pos)
@@ -53,8 +70,8 @@ class Recipe:
 			py.draw.rect(surface, (255, 255, 255), (ing[0], hor_y, 1, ing[1] - hor_y))
 
 		# draw items
-		res_idx = self.res.draw(surface, camera, window)
-		ing_idx = [ing.draw(surface, camera, window) for ing in self.ings]
+		res_idx = self.res.draw(offset, surface, camera, window)
+		ing_idx = [ing.draw(res_off, surface, camera, window) for ing in self.ings]
 
 		# bind to colliders
 		Item.colliders[res_idx]['resof'] = self

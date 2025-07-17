@@ -57,10 +57,12 @@ def parse_color(color: str) -> py.Color:
 class Catalog:
 	# catalog constructor
 	def __init__(self):
-		self.data = []
+		self.data: list[str, py.Color, py.Color] = []
+		self.algos: list[str, any] = []
 
 	# loads item catalog from json data
-	def load(self, data: dict) -> None:
+	def load(self, data: dict, algos: __module__) -> None:
+		# load item data
 		for i, item in enumerate(get_field(data, 'items', list)):
 			self.data.append((
 				hookup(lambda: get_field(item, 'name', str), f' while parsing item {i}'),
@@ -68,10 +70,25 @@ class Catalog:
 				parse_color(get_field(item, 'b', str))
 			))
 
+		# load algorithm data
+		for i, algo in enumerate(get_field(data, 'algorithms', list)):
+			path = get_field(algo, 'func', str)
+			if path not in algos.index:
+				raise Error(f'algorithm "{path}" not found')
+			self.algos.append((
+				get_field(algo, 'name', str),
+				algos.index[path]
+			))
+
 	# returns total item count
 	@property
 	def count(self):
-		return len(self.names)
+		return len(self.data)
+	
+	# returns total item count
+	@property
+	def algocount(self):
+		return len(self.algos)
 
 	# returns item data
 	def get(self, id: int) -> tuple[str, py.Color, py.Color]:

@@ -43,6 +43,16 @@ class Item:
 		self.y: int = y
 		self.i: int = id
 
+	# sets item position
+	def set(self, x: int, y: int) -> None:
+		self.x = x
+		self.y = y
+
+	# shifts item position
+	def shift(self, x: int, y: int) -> None:
+		self.x += x
+		self.y += y
+
 	# return item index
 	@property
 	def idx(self) -> int:
@@ -53,10 +63,10 @@ class Item:
 		return f'{db.get(self.i)[0]} @({self.x}, {self.y})'
 
 	# calculates true position
-	def pos(self, camera: tuple[int, int], window: tuple[int, int]) -> tuple[int, int]:
+	def pos(self, offset: tuple[int, int], camera: tuple[int, int], window: tuple[int, int]) -> tuple[int, int]:
 		# scale coordinates
-		tx = self.x * X_MULT
-		ty = self.y * Y_MULT
+		tx = (self.x + offset[0]) * X_MULT
+		ty = (self.y + offset[1]) * Y_MULT
 
 		# window + size offset makes item at (0, 0) perfectly in the middle of the window
 		tx += (window[0] - SIZE) // 2 - camera[0]
@@ -64,8 +74,8 @@ class Item:
 		return tx, ty
 
 	# draws item
-	def draw(self, surface: py.Surface, camera: tuple[int, int], window: tuple[int, int]) -> int:
-		tx, ty = self.pos(camera, window)
+	def draw(self, offset: tuple[int, int], surface: py.Surface, camera: tuple[int, int], window: tuple[int, int]) -> int:
+		tx, ty = self.pos(offset, camera, window)
 
 		# draw rects
 		_, fill, out = db.get(self.i)

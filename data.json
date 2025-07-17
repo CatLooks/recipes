@@ -42,11 +42,11 @@
 	/// Each algorithm has a display name and function name.
 	"algorithms": [
 		{
-			"name": "Leaf padding",
-			"func": "leaf"
+			"name": "Leaf padding (left)",
+			"func": "leaf-l"
 		}, {
-			"name": "Tower fitting",
-			"func": "tower"
+			"name": "Leaf padding (center)",
+			"func": "leaf-c"
 		}
 	]
 }
