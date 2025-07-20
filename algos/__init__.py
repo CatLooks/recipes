@@ -36,4 +36,5 @@ def random_tree(depth: int, bias: int = 1) -> Recipe | Item:
 index = {
 	'leaf-l': box.balance_left,
 	'leaf-c': box.balance_center,
+	'tower': lambda x: tower.balance(x, 2)
 }

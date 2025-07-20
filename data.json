@@ -47,6 +47,9 @@
 		}, {
 			"name": "Leaf padding (center)",
 			"func": "leaf-c"
+		}, {
+			"name": "Ingredient layering",
+			"func": "tower"
 		}
 	]
 }

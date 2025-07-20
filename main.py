@@ -147,9 +147,19 @@ while True:
 		win.blit(item_text, (win.get_width() - item_text.get_width() - PAD, win.get_height() - item_text.get_height() - PAD))
 
 		# recipe debug data
+		offset = 0
 		if hovered_items[0]['resof'] != None:
-			dbg_text = font.render(hovered_items[0]['resof'].notestr, 1, (255, 255, 255))
-			win.blit(dbg_text, (win.get_width() - dbg_text.get_width() - PAD, win.get_height() - item_text.get_height() - dbg_text.get_height() - PAD))
+			recipe_debug = hovered_items[0]['resof'].notestr
+			if recipe_debug:
+				dbg_text = font.render('[R] ' + recipe_debug, 1, (255, 255, 255))
+				win.blit(dbg_text, (win.get_width() - dbg_text.get_width() - PAD, win.get_height() - item_text.get_height() - dbg_text.get_height() - PAD))
+				offset = dbg_text.get_height()
+
+		# item debug data
+		item_debug = hovered_items[0]['item'].notestr
+		if item_debug:
+			dbg_text = font.render('[I] ' + item_debug, 1, (255, 255, 255))
+			win.blit(dbg_text, (win.get_width() - dbg_text.get_width() - PAD, win.get_height() - item_text.get_height() - dbg_text.get_height() - offset - PAD))
 
 		# ingredient of
 		ingof_text = font.render(f'Used in: {hovered_items[0]["ingof"]}', 1, (255, 255, 255))

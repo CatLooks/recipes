@@ -16,9 +16,18 @@ class Recipe:
 	# recipe constructor
 	def __init__(self, result: Item):
 		self.res: Item = result
-		self.ings: list[Item] = []
+		self.ings: list[Item | Recipe] = []
 		self.notes: dict = {}
 
+	# returns recipe position
+	@property
+	def x(self) -> int:
+		return self.res.x
+	@property
+	def y(self) -> int:
+		return self.res.y
+
+	# returns recipe debug notes
 	@property
 	def notestr(self) -> str:
 		return ', '.join(f'{key}: {val}' for key, val in self.notes.items())

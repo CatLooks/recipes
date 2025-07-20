@@ -4,6 +4,8 @@ from recipes import Recipe
 # balance recipe tree
 # returns recipe bounding box width
 def balance_left(rec: Recipe | Item) -> int:
+	rec.notes.clear()
+	
 	# balance item
 	if type(rec) == Item:
 		return 1
