@@ -73,12 +73,12 @@ algo = 0
 depth = 3
 
 # test recipe
-rec: Recipe = Recipe(Item(0, 0, 'gel'))
-rec.ings.append(Item(-2, 1, 'iron'))
-rec.ings.append(Item( 0, 1, 'gold'))
-rec.ings.append(Recipe(Item(2, 1, 'ruby')))
-rec.ings[2].ings.append(Item(-1, 1, 'emerald'))
-rec.ings[2].ings.append(Item( 1, 1, 'amethyst'))
+rec = Recipe.blueprint(
+	0, {
+		1: {3: {}, 4: {}},
+		2: {5: {}, 6: {}}
+	}
+)
 db.algos[algo][1](rec)
 
 # recipe cursor
@@ -242,22 +242,23 @@ while True:
 		string = str(hovered_items[0]['item'])
 		if len(hovered_items) > 1:
 			string += f' +{len(hovered_items) - 1}'
-		bl_text.append(string)
 
 		# recipe debug data
 		if hovered_items[0]['resof'] != None:
 			recipe_debug = hovered_items[0]['resof'].notestr
 			if recipe_debug:
-				tr_text.append(f'[R] {recipe_debug}')
+				tr_text.extend(f'Recipe cache:\n{recipe_debug}'.split('\n'))
 
 		# item debug data
 		item_debug = hovered_items[0]['item'].notestr
 		if item_debug:
-			tr_text.append(f'[I] {item_debug}')
+			tr_text.extend(f'Item cache:\n {item_debug}'.split('\n'))
 
 		# ingredient & result of
 		bl_text.append(f'Used in: {hovered_items[0]["ingof"]}')
 		bl_text.append(f'Recipe: {hovered_items[0]["resof"]}')
+		bl_text.append('')
+		bl_text.append(string)
 
 	# draw text
 	draw_text(tr_text, flip_x = 1, flip_y = 0)

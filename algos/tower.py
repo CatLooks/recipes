@@ -19,7 +19,6 @@ def balance(rec: Recipe | Item, spacing: int) -> list[tuple[int, int]]:
 		# first ingredient is used as reference point
 		if i == 0:
 			ing.set(0, 1)
-			ing.notes['pad'] = 0
 			continue
 		prev = rec.ings[i - 1]
 
@@ -30,20 +29,19 @@ def balance(rec: Recipe | Item, spacing: int) -> list[tuple[int, int]]:
 		diff: int = ing.x - prev.x
 
 		# get minimal padding
-		pad: int = 0
+		pads: list[int] = []
 		for (_, ar), (bl, _) in zip(bounds[i - 1], bounds[i]):
-			# get free space between ingredient layers
-			space = ar - bl - spacing
-			#print(f'{i} ({bl}, {ar}, {diff}) => {space}')
-
-			# update minimal padding
-			pad = max(pad, -space)
-		#print(f'pad = {pad}\n')
+			pads.append((
+				(bl + diff) - ar - 2,
+				ar, bl, diff
+			))
 
 		# pad ingredient
-		ing.shift(pad, 0)
-		### log ###
-		ing.notes['pad'] = pad
+		if pads:
+			pad = -min(p[0] for p in pads)
+			ing.shift(pad, 0)
+			### log ###
+			ing.notes['pad'] = f'{pad}\n' + '\n'.join(f'* {p[1]}, {p[2]} + {p[3]}) = {p[0]}' for p in pads)
 
 	# center recipe result
 	x = rec.ings[-1].x // 2
@@ -74,6 +72,6 @@ def balance(rec: Recipe | Item, spacing: int) -> list[tuple[int, int]]:
 		br = layer[r_idx][1] + rec.ings[r_idx].x
 		layers.append((al, br))
 	### log ###
-	rec.notes['layers'] = layers
+	rec.notes['layers'] = '\n' + '\n'.join(f'* {l}' for l in layers)
 
 	return layers

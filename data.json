@@ -25,6 +25,10 @@
 			"a": "#f7d031",
 			"b": "#827231"
 		}, {
+			"name": "Coal",
+			"a": "#151517",
+			"b": "#0c0c0d"
+		}, {
 			"name": "Ruby",
 			"a": "#eb0927",
 			"b": "#8a0a1b"
@@ -36,6 +40,10 @@
 			"name": "Emerald",
 			"a": "#41f055",
 			"b": "#26ad36"
+		}, {
+			"name": "Diamond",
+			"a": "#20dee8",
+			"b": "#1fb7bf"
 		}
 	],
 	/// List of all available placing algorithms.

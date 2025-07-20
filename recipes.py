@@ -12,12 +12,24 @@ def center(pos: tuple[int, int]) -> tuple[int, int]:
 	return pos[0] + SIZE // 2, pos[1] + SIZE // 2
 
 # recipe object
+class Recipe: pass
 class Recipe:
 	# recipe constructor
 	def __init__(self, result: Item):
 		self.res: Item = result
 		self.ings: list[Item | Recipe] = []
 		self.notes: dict = {}
+
+	# recipe blueprint constructor
+	@staticmethod
+	def blueprint(root: int | str, schema: dict[int | str, any]) -> Recipe:
+		rec = Recipe(Item(0, 0, root))
+		for res, ings in schema.items():
+			if ings == {}:
+				rec.ings.append(Item(0, 0, res))
+			else:
+				rec.ings.append(Recipe.blueprint(res, ings))
+		return rec
 
 	# references to recipe result
 	@property
@@ -33,7 +45,7 @@ class Recipe:
 	# returns recipe debug notes
 	@property
 	def notestr(self) -> str:
-		return ', '.join(f'{key}: {val}' for key, val in self.notes.items())
+		return '\n'.join(f'{key}: {val}' for key, val in self.notes.items())
 
 	# sets recipe position
 	def set(self, x: int, y: int) -> None:

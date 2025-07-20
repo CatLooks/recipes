@@ -53,7 +53,7 @@ class Item:
 	# returns item debug notes
 	@property
 	def notestr(self) -> str:
-		return ', '.join(f'{key}: {val}' for key, val in self.notes.items())
+		return '\n'.join(f'{key}: {val}' for key, val in self.notes.items())
 
 	# sets item position
 	def set(self, x: int, y: int) -> None:
