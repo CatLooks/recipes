@@ -178,6 +178,9 @@ while True:
 				if cursor and type(select()) == Item:
 					parent().ings[cursor[-1]] = Recipe(select())
 					select().ings.append(algos.random_item())
+				elif not cursor:
+					rec = Recipe(rec)
+					rec.ings.append(algos.random_item())
 				db.algos[algo][1](rec)
 			elif evt.key == py.K_e:
 				if cursor:

@@ -25,23 +25,23 @@ def balance(rec: Recipe | Item, spacing: int) -> list[tuple[int, int]]:
 		# set minimal padding
 		ing.set(prev.x + 2, 1)
 
-		# get space between ingredient results
-		diff: int = ing.x - prev.x
-
 		# get minimal padding
 		pads: list[int] = []
-		for (_, ar), (bl, _) in zip(bounds[i - 1], bounds[i]):
-			pads.append((
-				(bl + diff) - ar - 2 - spacing,
-				ar, bl, diff
-			))
+		for j in reversed(range(0, i)):
+			diff: int = ing.x - rec.ings[j].x
+			for (_, ar), (bl, _) in zip(bounds[j], bounds[i]):
+				pads.append((
+					(bl + diff) - ar - 2 - spacing,
+					ar, bl
+				))
 
 		# pad ingredient
 		if pads:
 			pad = -min(p[0] for p in pads)
-			ing.shift(pad, 0)
-			### log ###
-			ing.notes['pad'] = f'{pad}\n' + '\n'.join(f'* {p[1]}, {p[2]} + {p[3]}) = {p[0]}' for p in pads)
+			if pad > 0:
+				ing.shift(pad, 0)
+				### log ###
+				ing.notes['pad'] = f'{pad}\n' + '\n'.join(f'* {p[1]}, {p[2]} = {p[0]}' for p in pads)
 
 	# center recipe result
 	x = rec.ings[-1].x // 2
