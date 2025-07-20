@@ -62,5 +62,7 @@
 			"name": "Ingredient layering (with spacing)",
 			"func": "tower-2"
 		}
-	]
+	],
+	/// Border of recipe image generator.
+	"border": 4
 }

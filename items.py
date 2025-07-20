@@ -22,6 +22,19 @@ class Item:
 	selector: int = None
 	next_id = 0
 
+	screen_rect = None
+
+	# updates screen rect to include another rect
+	@classmethod
+	def merge_rect(cls, rect: tuple[int, int, int, int]) -> None:
+		if cls.screen_rect == None:
+			cls.screen_rect = list(rect)
+			return
+		cls.screen_rect[0] = min(cls.screen_rect[0], rect[0])
+		cls.screen_rect[1] = min(cls.screen_rect[1], rect[1])
+		cls.screen_rect[2] = max(cls.screen_rect[2], rect[2])
+		cls.screen_rect[3] = max(cls.screen_rect[3], rect[3])
+
 	# returns all items at mouse position
 	@classmethod
 	def get_at(cls, pos: tuple[int, int]) -> tuple[dict]:
@@ -100,7 +113,6 @@ class Item:
 			py.draw.rect(surface, (255, 255, 255), (tx - 4, ty - 4, SIZE + 8, SIZE + 8), 1)
 
 		# register collider
-		# min x, min y, max x, max y, item reference, result of, ingredient of
 		collider = {
 			'box': (tx, ty, tx + SIZE, ty + SIZE),
 			'item': self,
@@ -108,4 +120,5 @@ class Item:
 			'ingof': None
 		}
 		self.colliders.append(collider)
+		self.merge_rect(collider['box'])
 		return len(self.colliders) - 1

@@ -59,6 +59,7 @@ class Catalog:
 	def __init__(self):
 		self.data: list[str, py.Color, py.Color] = []
 		self.algos: list[str, any] = []
+		self.border = 0
 
 	# loads item catalog from json data
 	def load(self, data: dict, algos: __module__) -> None:
@@ -79,6 +80,9 @@ class Catalog:
 				get_field(algo, 'name', str),
 				algos.index[path]
 			))
+
+		# load image border
+		self.border = get_field(data, 'border', int)
 
 	# returns total item count
 	@property

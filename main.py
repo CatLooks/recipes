@@ -3,7 +3,7 @@ import json5
 import catalog
 import algos
 
-from items import Item, db
+from items import Item, db, SIZE
 from recipes import Recipe
 
 # load config
@@ -195,6 +195,27 @@ while True:
 						cursor[-1] -= 1
 				db.algos[algo][1](rec)
 
+			# save recipe image
+			elif evt.key == py.K_s and py.key.get_mods() & py.KMOD_LCTRL:
+				sur = py.Surface((
+					Item.screen_rect[2] - Item.screen_rect[0] + db.border * 2,
+					Item.screen_rect[3] - Item.screen_rect[1] + db.border * 2
+				))
+				sur.fill((29, 31, 37))
+
+				# reset item stats
+				Item.colliders.clear()
+				Item.selector = None
+
+				# draw recipe tree
+				rec.draw((0, 0), sur, (
+					Item.screen_rect[0] + camera[0] - (win.get_width() - SIZE) // 2 - db.border,
+					Item.screen_rect[1] + camera[1] - (win.get_height() - SIZE) // 2 - db.border
+				), (SIZE, SIZE))
+
+				# save surface
+				py.image.save(sur, "recipe.png")
+
 	# quit if window is closed
 	if done:
 		py.quit()
@@ -210,11 +231,12 @@ while True:
 	# clear frame
 	win.fill((29, 31, 37))
 
-	# reset object colliders
+	# reset item stats
 	Item.colliders.clear()
+	Item.selector = select().id
+	Item.screen_rect = None
 
 	# draw recipe tree
-	Item.selector = select().id
 	rec.draw((0, 0), win, camera, win.get_size())
 
 	# top left corner text
@@ -237,6 +259,13 @@ while True:
 
 	# draw fps
 	br_text.append(f'{int(clock.get_fps())} fps')
+
+	# draw recipe tree bounds
+	br_text.append(f'''Bounds: {Item.screen_rect[0]}, {Item.screen_rect[1]} ({
+			Item.screen_rect[2] - Item.screen_rect[0]
+		} x {
+			Item.screen_rect[3] - Item.screen_rect[1]
+		})''')
 
 	# draw hovered item info
 	hovered_items = Item.get_at(py.mouse.get_pos())
