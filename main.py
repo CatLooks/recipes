@@ -68,6 +68,10 @@ drag = {
 	'active': False, # whether currently dragging
 }
 
+# frame bar
+bars = ['/', '-', '\\', '|']
+bar_counter = 0
+
 # generator settings
 algo = 0
 depth = 3
@@ -257,8 +261,10 @@ while True:
 	bl_text: list[str] = []
 	br_text: list[str] = []
 
-	# draw fps
+	# draw fps & frame bar
 	br_text.append(f'{int(clock.get_fps())} fps')
+	br_text.append(f'Frame bar: [{bars[bar_counter]}]')
+	bar_counter = (bar_counter + 1) % len(bars)
 
 	# draw recipe tree bounds
 	br_text.append(f'''Bounds: {Item.screen_rect[0]}, {Item.screen_rect[1]} ({
