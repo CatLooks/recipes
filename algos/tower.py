@@ -32,7 +32,7 @@ def balance(rec: Recipe | Item, spacing: int) -> list[tuple[int, int]]:
 		pads: list[int] = []
 		for (_, ar), (bl, _) in zip(bounds[i - 1], bounds[i]):
 			pads.append((
-				(bl + diff) - ar - 2,
+				(bl + diff) - ar - 2 - spacing,
 				ar, bl, diff
 			))
 
