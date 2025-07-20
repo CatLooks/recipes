@@ -35,6 +35,31 @@ clock = py.time.Clock()
 font = py.font.SysFont('cascadia code', 20)
 PAD = 8 # text info pad from borders
 
+# multiline text drawer
+def draw_text(text: list[str], *, flip_x: bool, flip_y: bool) -> None:
+	# initial position
+	pos = [
+		win.get_width() - PAD if flip_x else PAD,
+		win.get_height() - PAD if flip_y else PAD
+	]
+
+	# draw each line
+	for line in text:
+		text_surface = font.render(line, 1, (255, 255, 255))
+
+		# get text position
+		text_pos = (
+			pos[0] - text_surface.get_width() if flip_x else pos[0],
+			pos[1] - text_surface.get_height() if flip_y else pos[1]
+		)
+
+		# draw & calculate next position
+		win.blit(text_surface, text_pos)
+		if flip_y:
+			pos[1] -= text_surface.get_height()
+		else:
+			pos[1] += text_surface.get_height()
+
 # camera related stuff
 camera = 0, 0
 drag = {
@@ -54,6 +79,31 @@ rec.ings.append(Item( 0, 1, 'gold'))
 rec.ings.append(Recipe(Item(2, 1, 'ruby')))
 rec.ings[2].ings.append(Item(-1, 1, 'emerald'))
 rec.ings[2].ings.append(Item( 1, 1, 'amethyst'))
+db.algos[algo][1](rec)
+
+# recipe cursor
+cursor: list[int] = []
+
+# returns currently pointed object
+def select() -> Recipe | Item:
+	now = rec
+	for branch in cursor:
+		now = now.ings[branch]
+	return now
+
+# returns parent of currently pointed object
+def parent() -> Recipe | Item:
+	now = rec
+	for branch in cursor[:-1]:
+		now = now.ings[branch]
+	return now
+
+# returns parent of parent of currently pointed object
+def parent_ex() -> Recipe | Item:
+	now = rec
+	for branch in cursor[:-2]:
+		now = now.ings[branch]
+	return now
 
 # main loop
 while True:
@@ -77,12 +127,12 @@ while True:
 		# keyboard events
 		elif evt.type == py.KEYDOWN:
 			# reset camera position
-			if evt.key == py.K_r:
+			if evt.key == py.K_c:
 				drag['active'] = False
 				camera = 0, 0
 
 			# cycle algorithms
-			elif evt.key == py.K_q:
+			elif evt.key == py.K_b:
 				algo += 1
 				algo %= db.algocount
 				db.algos[algo][1](rec)
@@ -90,14 +140,57 @@ while True:
 			# generate new tree
 			elif evt.key == py.K_g:
 				rec = algos.random_tree(depth)
+				cursor.clear()
 				db.algos[algo][1](rec)
 
 			# change depth
-			elif evt.key == py.K_LEFT:
+			elif evt.key == py.K_LEFTBRACKET:
 				if depth > 1:
 					depth -= 1
-			elif evt.key == py.K_RIGHT:
+			elif evt.key == py.K_RIGHTBRACKET:
 				depth += 1
+
+			# cursor move controls
+			elif evt.key == py.K_LEFT:
+				if cursor and cursor[-1] > 0:
+					cursor[-1] -= 1
+			elif evt.key == py.K_RIGHT:
+				if cursor and cursor[-1] < len(parent().ings) - 1:
+					cursor[-1] += 1
+			elif evt.key == py.K_DOWN:
+				current = select()
+				if type(current) == Recipe:
+					cursor.append((len(current.ings) - 1) // 2)
+			elif evt.key == py.K_UP:
+				if cursor:
+					cursor.pop()
+			
+			# cursor edit controls
+			elif evt.key == py.K_q:
+				if cursor:
+					parent().ings.insert(cursor[-1], algos.random_item())
+				db.algos[algo][1](rec)
+			elif evt.key == py.K_w:
+				if cursor:
+					parent().ings.insert(cursor[-1] + 1, algos.random_item())
+				db.algos[algo][1](rec)
+			elif evt.key == py.K_r:
+				if cursor and type(select()) == Item:
+					parent().ings[cursor[-1]] = Recipe(select())
+					select().ings.append(algos.random_item())
+				db.algos[algo][1](rec)
+			elif evt.key == py.K_e:
+				if cursor:
+					if len(parent().ings) == 1:
+						if len(cursor) == 1:
+							rec = parent().res
+						else:
+							parent_ex().ings[cursor[-2]] = parent().res
+						cursor.pop()
+					else:
+						parent().ings.pop(cursor[-1])
+						cursor[-1] -= 1
+				db.algos[algo][1](rec)
 
 	# quit if window is closed
 	if done:
@@ -118,23 +211,29 @@ while True:
 	Item.colliders.clear()
 
 	# draw recipe tree
+	Item.selector = select().id
 	rec.draw((0, 0), win, camera, win.get_size())
 
-	# draw camera position
-	cam_text = font.render(f'@({camera[0]}, {camera[1]}) (reset with R)', 1, (255, 255, 255))
-	win.blit(cam_text, (PAD, PAD))
+	# top left corner text
+	draw_text([
+		f'@({camera[0]}, {camera[1]}) (reset with C)',
+		f'Algorithm: {db.algos[algo][0]} (cycle with B, generate new with G)',
+		f'Depth: {depth} (change with [ and ])',
+		'',
+		'Navigate recipe tree with arrow keys',
+		'Q - add item from right side',
+		'W - add item from left side',
+		'E - erase item / recipe',
+		'R - convert item into a recipe'
+	], flip_x = 0, flip_y = 0)
 
-	# draw current algorithm
-	algo_text = font.render(f'Algorithm: {db.algos[algo][0]} (cycle with Q, generate new with G)', 1, (255, 255, 255))
-	win.blit(algo_text, (PAD, cam_text.get_height() + PAD))
+	# text containers
+	tr_text: list[str] = []
+	bl_text: list[str] = []
+	br_text: list[str] = []
 
-	# draw current depth
-	dep_text = font.render(f'Depth: {depth} (change with < & > arrows)', 1, (255, 255, 255))
-	win.blit(dep_text, (PAD, cam_text.get_height() + algo_text.get_height() + PAD))
-
-	# draw framerate
-	fps_text = font.render(f'{int(clock.get_fps())} fps', 1, (255, 255, 255))
-	win.blit(fps_text, (win.get_width() - fps_text.get_width() - PAD, PAD))
+	# draw fps
+	br_text.append(f'{int(clock.get_fps())} fps')
 
 	# draw hovered item info
 	hovered_items = Item.get_at(py.mouse.get_pos())
@@ -143,31 +242,27 @@ while True:
 		string = str(hovered_items[0]['item'])
 		if len(hovered_items) > 1:
 			string += f' +{len(hovered_items) - 1}'
-		item_text = font.render(string, 1, (255, 255, 255))
-		win.blit(item_text, (win.get_width() - item_text.get_width() - PAD, win.get_height() - item_text.get_height() - PAD))
+		bl_text.append(string)
 
 		# recipe debug data
-		offset = 0
 		if hovered_items[0]['resof'] != None:
 			recipe_debug = hovered_items[0]['resof'].notestr
 			if recipe_debug:
-				dbg_text = font.render('[R] ' + recipe_debug, 1, (255, 255, 255))
-				win.blit(dbg_text, (win.get_width() - dbg_text.get_width() - PAD, win.get_height() - item_text.get_height() - dbg_text.get_height() - PAD))
-				offset = dbg_text.get_height()
+				tr_text.append(f'[R] {recipe_debug}')
 
 		# item debug data
 		item_debug = hovered_items[0]['item'].notestr
 		if item_debug:
-			dbg_text = font.render('[I] ' + item_debug, 1, (255, 255, 255))
-			win.blit(dbg_text, (win.get_width() - dbg_text.get_width() - PAD, win.get_height() - item_text.get_height() - dbg_text.get_height() - offset - PAD))
+			tr_text.append(f'[I] {item_debug}')
 
-		# ingredient of
-		ingof_text = font.render(f'Used in: {hovered_items[0]["ingof"]}', 1, (255, 255, 255))
-		win.blit(ingof_text, (PAD, win.get_height() - ingof_text.get_height() - PAD))
+		# ingredient & result of
+		bl_text.append(f'Used in: {hovered_items[0]["ingof"]}')
+		bl_text.append(f'Recipe: {hovered_items[0]["resof"]}')
 
-		# result of
-		resof_text = font.render(f'Recipe: {hovered_items[0]["resof"]}', 1, (255, 255, 255))
-		win.blit(resof_text, (PAD, win.get_height() - resof_text.get_height() - ingof_text.get_height() - PAD))
+	# draw text
+	draw_text(tr_text, flip_x = 1, flip_y = 0)
+	draw_text(bl_text, flip_x = 0, flip_y = 1)
+	draw_text(br_text, flip_x = 1, flip_y = 1)
 	
 	# wait until next frame
 	py.display.flip()

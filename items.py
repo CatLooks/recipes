@@ -19,6 +19,8 @@ class Item: pass
 class Recipe: pass
 class Item:
 	colliders = []
+	selector: int = None
+	next_id = 0
 
 	# returns all items at mouse position
 	@classmethod
@@ -43,6 +45,10 @@ class Item:
 		self.y: int = y
 		self.i: int = id
 		self.notes: dict = {}
+
+		# assign item ID
+		self.id = Item.next_id
+		Item.next_id += 1
 
 	# returns item debug notes
 	@property
@@ -87,6 +93,11 @@ class Item:
 		_, fill, out = db.get(self.i)
 		py.draw.rect(surface, out, (tx, ty, SIZE, SIZE))
 		py.draw.rect(surface, fill, (tx + BORDER, ty + BORDER, SIZE - BORDER * 2, SIZE - BORDER * 2))
+
+		# draw selector outlines
+		if self.id == self.selector:
+			py.draw.rect(surface, (255, 255, 255), (tx - 2, ty - 2, SIZE + 4, SIZE + 4), 1)
+			py.draw.rect(surface, (255, 255, 255), (tx - 4, ty - 4, SIZE + 8, SIZE + 8), 1)
 
 		# register collider
 		# min x, min y, max x, max y, item reference, result of, ingredient of

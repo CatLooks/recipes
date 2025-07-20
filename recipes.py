@@ -19,13 +19,16 @@ class Recipe:
 		self.ings: list[Item | Recipe] = []
 		self.notes: dict = {}
 
-	# returns recipe position
+	# references to recipe result
 	@property
 	def x(self) -> int:
 		return self.res.x
 	@property
 	def y(self) -> int:
 		return self.res.y
+	@property
+	def id(self) -> int:
+		return self.res.id
 
 	# returns recipe debug notes
 	@property
