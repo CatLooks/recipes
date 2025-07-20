@@ -13,7 +13,7 @@ def random_item() -> Item:
 	return Item(0, 0, random.randrange(db.count))
 
 # generates a random recipe tree
-def random_tree(depth: int, bias: int = 1) -> Recipe | Item:
+def random_tree(depth: int, boost: float = 1.0) -> Recipe | Item:
 	# generate item
 	if depth <= 0 or random_chance(0.4 / depth):
 		return random_item()
@@ -22,13 +22,29 @@ def random_tree(depth: int, bias: int = 1) -> Recipe | Item:
 	rec = Recipe(random_item())
 	
 	# ingredient count
-	count = 1
-	if random.randrange(bias) == 0:
-		count = random.randint(2, min([2 + depth // 3, 5]))
+	dice = random.uniform(0, 1)
+	if dice < 0.35:
+		count = 1
+	elif dice < 0.75:
+		count = 2
+	elif dice < 0.95:
+		count = 3 if random_chance(0.85) else 4
+	else:
+		count = 3
+		if random_chance(0.3):
+			count = 4
+			if random_chance(0.2):
+				count = random.randint(5, 8)
+
+	# biased boosts indices
+	biases: list[int] = [random.randrange(count)]
+	if random_chance(0.3):
+		biases.append(random.randrange(count))
 
 	# generate ingredients
-	for _ in range(count):
-		rec.ings.append(random_tree(depth - 1, random.randint(1, 4)))
+	for idx in range(count):
+		boost: float = random.uniform(0.5, 1) if idx in biases else random.uniform(0, 1)
+		rec.ings.append(random_tree(depth - 1, boost))
 	return rec
 
 # algorithm index
