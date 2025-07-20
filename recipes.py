@@ -13,9 +13,6 @@ def center(pos: tuple[int, int]) -> tuple[int, int]:
 
 # recipe object
 class Recipe:
-	colliders_ing = [] # ingredient colliders
-	colliders_res = [] # result colliders
-
 	# recipe constructor
 	def __init__(self, result: Item):
 		self.res: Item = result

@@ -116,8 +116,6 @@ while True:
 
 	# reset object colliders
 	Item.colliders.clear()
-	Recipe.colliders_ing.clear()
-	Recipe.colliders_res.clear()
 
 	# draw recipe tree
 	rec.draw((0, 0), win, camera, win.get_size())
